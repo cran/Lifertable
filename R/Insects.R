@@ -1,0 +1,16 @@
+#' Insects data
+#'
+#' This dataset provides reference information on two groups of insects to illustrate the usage of functions within this package.
+#'
+#' @format
+#' A data frame with 404 rows and 6 columns:
+#' \describe{
+#'   \item{Group}{ Name of the group (Claudia, paty). }
+#'   \item{Female}{ The number of the female to which each row belongs.}
+#'   \item{Age}{ It is the age corresponding to the female. Stage in which it is found.}
+#'   \item{Eggs}{ Eggs laid by each female at each age.}
+#'   \item{Sexrate}{ Sexrate at each age.}
+#'   \item{Survival}{ Survival at each age.}
+#' }
+#' @source This dataset serves as an example for running the provided code snippets or as a reference for analyzing the functionality of this package.
+"Insects"
