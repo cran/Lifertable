@@ -28,9 +28,9 @@ It is optional if the database only contains information about one group.}
 
 \item{InitiationOfAdultStage}{Age at which females became adults.
 If the database contains records from birth, entering this value is
-unnecessary. ONLY ENTER THIS VALUE if the database begins from the adult
-stage, and the values in \code{ColumnAge} do not reflect the preceding
-stage (i.e. they contain the ages: 1, 2, 3, ...).}
+unnecessary. \bold{ONLY ENTER THIS VALUE} if the database begins from the
+adult stage, and the values in \code{ColumnAge} do not reflect the
+preceding stage (i.e. they contain the ages: 1, 2, 3, ...).}
 }
 \value{
 Returns an object of \code{\link[base:class]{class}} c("gg", "ggplot").
@@ -43,11 +43,18 @@ The data is sourced from the original database.
 \examples{
 ## The Insects database will be used to generate the plot.
 
-plotDistrOvipos(Female, Age, Eggs, Group, data = Insects)
+plotDistrOvipos(ColumnFemale = Female,
+                ColumnAge = Age,
+                ColumnEggs = Eggs,
+                ColumnGroups = Group,
+                data = Insects)
 
 ## The following expression will yield the same result as described above:
 
-plotDistrOvipos(Insects$Female, Insects$Age, Insects$Eggs, Insects$Group)
+plotDistrOvipos(ColumnFemale = Insects$Female,
+                ColumnAge = Insects$Age,
+                ColumnEggs = Insects$Eggs,
+                ColumnGroups = Insects$Group)
 
 
 }

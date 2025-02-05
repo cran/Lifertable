@@ -11,8 +11,12 @@
 #'
 #' @examples
 #' ## Make the main object:
-#' lft <- lifertable(Female, Age, Eggs, Sexrate,
-#'                   ColumnGroups = Group, data = Insects)
+#' lft <- lifertable(ColumnFemale = Female,
+#'                   ColumnAge = Age,
+#'                   ColumnEggs = Eggs,
+#'                   SexRate = Sexrate,
+#'                   ColumnGroups = Group,
+#'                   data = Insects)
 #'
 #'
 #' as.data.frame(lft$LIFERTABLE)
@@ -23,10 +27,12 @@ as.data.frame.lifertableLFT <- function (x, row.names = NULL, ...) {
     data.frame(AGE = x$AGE,
                FEMALES = x$FEMALES,
                NEGG = x$NEGG,
-               LX = x$LX,
-               MX = x$MX,
-               LXMX = x$LXMX,
-               XLXMX = x$XLXMX,
+               Lx = x$Lx,
+               Mx = x$Mx,
+               LxMx = x$LxMx,
+               xLxMx = x$xLxMx,
+               gx = x$gx, #Nuevo 0.0.2
+               ex = x$ex, #Nuevo 0.0.2
                row.names = row.names)
   } else {
     for (i in seq_along(x) ) {

@@ -19,23 +19,35 @@ lifertable.groups <- function(ColGroups,
                               ColumnEggs,
                               ColSexRate,
                               ColSurvival,
-                              jackknife,
-                              TotalEggs ) {
+                              CI,
+                              TotalEggs,
+                              InitAge) {
 
   Data <- data.frame(Group = ColGroups,
                      Female = ColumnFemale,
                      Age = ColumnAge,
                      Eggs = ColumnEggs)
+  Groups <- ColGroups[!duplicated(ColGroups)]
 
   # # Separamos los grupos ----------------------------------------------------
   GROUPS <- split(Data, Data$Group)
   for (i in 1 : length(GROUPS)) {
     GROUPS[[i]] <- as.list(GROUPS[[i]])
 
+    if (length(InitAge) == 1) {
+      GROUPS[[i]]$InitAge <- InitAge
+    } else if (length(InitAge) == length(GROUPS)) {
+      GROUPS[[i]]$InitAge <- split(InitAge, Groups)[[i]]
+    } else if (length(InitAge) == nrow(Data)) {
+      GROUPS[[i]]$InitAge <- split(InitAge, ColGroups)[[i]]
+    } else {
+      stop("`InitiationOfAdultStage` has incorrect length")
+    }
+
     if (length(ColSexRate) == 1) {
       GROUPS[[i]]$SexRate <- ColSexRate
     } else if (length(ColSexRate) == length(GROUPS)) {
-      GROUPS[[i]]$SexRate <- ColSexRate[[i]]
+      GROUPS[[i]]$SexRate <- split(ColSexRate, Groups)[[i]]
     } else if (length(ColSexRate) == nrow(Data)) {
       GROUPS[[i]]$SexRate <- split(ColSexRate, ColGroups)[[i]]
     } else {
@@ -45,7 +57,7 @@ lifertable.groups <- function(ColGroups,
     if (length(ColSurvival) == 1) {
       GROUPS[[i]]$Survival <- ColSurvival
     } else if (length(ColSurvival) == length(GROUPS)) {
-      GROUPS[[i]]$Survival <- ColSurvival[[i]]
+      GROUPS[[i]]$Survival <- split(ColSurvival, Groups)[[i]]
     } else if (length(ColSurvival) == nrow(Data)) {
       GROUPS[[i]]$Survival <- split(ColSurvival, ColGroups)[[i]]
     } else {
@@ -53,11 +65,17 @@ lifertable.groups <- function(ColGroups,
     }
   }
 
-  TOTAL <- lapply(GROUPS, FUN = function(x) {
-        lifertable(ColumnFemale = x$Female, ColumnAge = x$Age,
-                   ColumnEggs = x$Eggs, SexRate = x$SexRate,
-                   Survival = x$Survival, jackknife = jackknife,
-                   TotalEggs = TotalEggs) })
+  TOTAL <- lapply(GROUPS,
+                  FUN = function(x) {
+                    lifertable(ColumnFemale = x$Female,
+                               ColumnAge = x$Age,
+                               ColumnEggs = x$Eggs,
+                               SexRate = x$SexRate,
+                               Survival = x$Survival,
+                               CI = CI,
+                               TotalEggs = TotalEggs,
+                               InitiationOfAdultStage = x$InitAge)
+                  })
 
 
   Groups <- names(TOTAL)
@@ -65,7 +83,7 @@ lifertable.groups <- function(ColGroups,
   Lifertable <- list(
     LIFERTABLE = lapply(TOTAL, FUN = function(x) x$LIFERTABLE),
     PARAMETERS = lapply(TOTAL, FUN = function(x) x$PARAMETERS)
-    )
+  )
   class(Lifertable$LIFERTABLE) <- "lifertableLFT"
   class(Lifertable$PARAMETERS) <- "lifertableParmEst"
 
@@ -74,7 +92,7 @@ lifertable.groups <- function(ColGroups,
     class(Lifertable$TOTAL.EGGS) <- "lifertableTotEggs"
   }
 
-  if (jackknife) {
+  if (CI) {
     Lifertable$CI <- lapply(TOTAL, FUN = function(x) x$CI)
     Lifertable$PSEUDOS <- lapply(TOTAL, FUN = function(x) x$PSEUDOS)
 

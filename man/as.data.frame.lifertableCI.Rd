@@ -22,9 +22,13 @@ Function to coerce the object displaying the Confidence Interval into a data fra
 }
 \examples{
 ## Make the main object:
-lft <- lifertable(Female, Age, Eggs, Sexrate,
+lft <- lifertable(ColumnFemale = Female,
+                  ColumnAge = Age,
+                  ColumnEggs = Eggs,
+                  SexRate = Sexrate,
                   ColumnGroups = Group,
-                  data = Insects, jackknife = TRUE)
+                  data = Insects,
+                  CI = TRUE)
 
 
 as.data.frame(lft$CI)

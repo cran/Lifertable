@@ -23,6 +23,7 @@ lifertable.jackknife <- function(Female,
                                  ...) {
 
   Ages <- Age[!duplicated(Age)]
+
   JK <- data.frame(Female = Female,
                    Age = Age,
                    Eggs = Eggs)
@@ -62,7 +63,7 @@ lifertable.jackknife <- function(Female,
                              ColumnEggs = x$Eggs,
                              SexRate = x$SexRate,
                              Survival = x$Survival,
-                             jackknife = FALSE,
+                             CI = FALSE,
                              TotalEggs = FALSE)$PARAMETERS)
     })
 
@@ -80,7 +81,7 @@ lifertable.jackknife <- function(Female,
                            ColumnEggs = JK$Eggs,
                            SexRate = JK$SexRate,
                            Survival = JK$Survival,
-                           jackknife = FALSE, ...)
+                           CI = FALSE, ...)
 
   Lifertable$CI <- lapply(pseudos, FUN = intconf )
   class(Lifertable$CI) <- "lifertableCI"

@@ -18,8 +18,13 @@ Construction of Plots for the pseudo-values of associated Life Table parameters.
 }
 \examples{
 ## The main object will be created using the Insects database:
-lft <- lifertable(Female, Age, Eggs, Sexrate, ColumnGroups = Group,
-                  data = Insects, jackknife = TRUE)
+lft <- lifertable(ColumnFemale = Female,
+                  ColumnAge = Age,
+                  ColumnEggs = Eggs,
+                  SexRate = Sexrate,
+                  ColumnGroups = Group,
+                  data = Insects,
+                  CI = TRUE)
 
 PlotPseudoVals(lft)
 

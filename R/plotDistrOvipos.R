@@ -16,11 +16,18 @@
 #' @examples
 #' ## The Insects database will be used to generate the plot.
 #'
-#' plotDistrOvipos(Female, Age, Eggs, Group, data = Insects)
+#' plotDistrOvipos(ColumnFemale = Female,
+#'                 ColumnAge = Age,
+#'                 ColumnEggs = Eggs,
+#'                 ColumnGroups = Group,
+#'                 data = Insects)
 #'
 #' ## The following expression will yield the same result as described above:
 #'
-#' plotDistrOvipos(Insects$Female, Insects$Age, Insects$Eggs, Insects$Group)
+#' plotDistrOvipos(ColumnFemale = Insects$Female,
+#'                 ColumnAge = Insects$Age,
+#'                 ColumnEggs = Insects$Eggs,
+#'                 ColumnGroups = Insects$Group)
 #'
 #'
 plotDistrOvipos <- function (ColumnFemale,
@@ -39,14 +46,31 @@ plotDistrOvipos <- function (ColumnFemale,
     Age <- eval(substitute(ColumnAge), data)
     Eggs <- eval(substitute(ColumnEggs), data)
   }
-  Age <- Age + InitiationOfAdultStage
+
+  Init <- tryCatch({ eval(substitute(InitiationOfAdultStage), data) },
+                   error = function(e) { InitiationOfAdultStage } )
+
+  #Age <- Age + InitiationOfAdultStage
 
   if (!missing(ColumnGroups)) {
     Group <- tryCatch({ eval(substitute(ColumnGroups), data) },
                       error = function(e) { ColumnGroups } )
 
-    DT <- data.frame(Group = Group, Female = Female, Age = Age, Eggs = Eggs)
-    meansH <- stats::aggregate(Eggs ~ Age + Group, data = DT, FUN = mean)
+    Groups <- Group[!duplicated(Group)]
+
+    if ( (length(Init) == 1) || (length(Init) == length(Age))) {
+      Age <- Age + Init
+      DT <- data.frame(Group = Group, Female = Female, Age = Age, Eggs = Eggs)
+    } else if (length(Init) == length(Groups)) {
+      GroupInit <- data.frame(Group = Groups, Init)
+      Init2 <- merge(data.frame(Group, Female, Age, Eggs), GroupInit, by = "Group")
+      DT <- data.frame(Group = Init2$Group, Female = Init2$Female,
+                       Age = Init2$Age+Init2$Init, Eggs = Init2$Eggs)
+    } else {
+      stop("`InitiationOfAdultStage` has incorrect length")
+    }
+
+    meansH <- stats::aggregate(Eggs ~ Age + Group, data = DT, FUN = mean, na.rm = TRUE)
 
     ggplot2::ggplot(DT, mapping = aes(Age, Eggs)) +
       geom_point() +
@@ -58,8 +82,10 @@ plotDistrOvipos <- function (ColumnFemale,
       theme(plot.title = element_text(hjust = 0.5))
 
   } else {
+    Age <- Age + Init
+
     DT <- data.frame(Female = Female, Age = Age, Eggs = Eggs)
-    meansH <- stats::aggregate(Eggs ~ Age, data = DT, FUN = mean)
+    meansH <- stats::aggregate(Eggs ~ Age, data = DT, FUN = mean, na.rm = TRUE)
 
     ggplot2::ggplot(DT, mapping = aes(Age, Eggs)) +
       geom_point() +

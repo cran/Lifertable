@@ -22,9 +22,13 @@ Function to coerce the object displaying Total Eggs into a data frame.
 }
 \examples{
 ## Make the main object:
-lft <- lifertable(Female, Age, Eggs, Sexrate,
+lft <- lifertable(ColumnFemale = Female,
+                  ColumnAge = Age,
+                  ColumnEggs = Eggs,
+                  SexRate = Sexrate,
                   ColumnGroups = Group,
-                  data = Insects, TotalEggs = TRUE)
+                  data = Insects,
+                  TotalEggs = TRUE)
 
 
 as.data.frame(lft$TOTAL.EGGS)

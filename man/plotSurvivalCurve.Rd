@@ -24,7 +24,11 @@ Survival (y-axis) versus Age (x-axis)
 }
 \examples{
 ## The main object will be created using the Insects database:
-lft <- lifertable(Female, Age, Eggs, Sexrate, ColumnGroups = Group,
+lft <- lifertable(ColumnFemale = Female,
+                  ColumnAge = Age,
+                  ColumnEggs = Eggs,
+                  SexRate = Sexrate,
+                  ColumnGroups = Group,
                   data = Insects)
 
 ## Possible usage scenarios

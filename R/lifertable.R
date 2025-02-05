@@ -1,7 +1,7 @@
 
 #' Life and Fertility Table
 #'
-#' This function enables users to obtain life and fertility tables, offering
+#' This function enables users to obtain Life and Fertility Tables, offering
 #' various configuration options for optimal usage. See "Details" section.
 #'
 #' @param ColumnFemale Data vector containing information on Females.
@@ -12,24 +12,24 @@
 #'
 #' @param SexRate Sex rate of eggs laid by the female at a certain age.
 #'
-#' @param Survival Percent of offspring females alive until adulthood.
-#'     By default, the value is set to 1, assuming that all offspring will survive to adulthood.
+#' @param Survival Percent of offspring females alive until adulthood. By default,
+#'     the value is set to 1, assuming that all offspring will survive to adulthood.
 #'
 #' @param ColumnGroups Optional data vector containing information on the Groups.
 #'     It is optional if the database only contains information about one group.
 #'
 #' @param data An optional data frame containing the variables. If not found in
-#' \code{data}, the variables are taken from environment.
+#'     \code{data}, the variables are taken from environment.
 #'
 #' @param InitiationOfAdultStage Age at which females became adults.
 #'     If the database contains records from birth, entering this value is
-#'     unnecessary. ONLY ENTER THIS VALUE if the database begins from the adult
-#'     stage, and the values in \code{ColumnAge} do not reflect the preceding
-#'     stage (i.e. they contain the ages: 1, 2, 3, ...).
+#'     unnecessary. \bold{ONLY ENTER THIS VALUE} if the database begins from the
+#'     adult stage, and the values in \code{ColumnAge} do not reflect the
+#'     preceding stage (i.e. they contain the ages: 1, 2, 3, ...).
 #'
-#' @param jackknife Logical. If \code{TRUE}, Jackknife estimations will be
-#'     conducted to obtain Confidence Intervals for the Parameters and, if
-#'     necessary, to compare between groups. Default is FALSE
+#' @param CI Logical. If \code{TRUE}, Jackknife estimations will be conducted to
+#'     obtain Confidence Intervals for the Parameters and, if necessary, to compare
+#'     between groups. Default is FALSE
 #'
 #' @param TotalEggs Logical. If  \code{TRUE}, the calculation of the number of
 #'     eggs laid by each female during the entire experiment will be conducted.
@@ -43,27 +43,31 @@
 #' The standard approach for storing the Sex Rate and Survival rate during the
 #' experiment is to input this information into the corresponding columns for
 #' each variable. If this information remains consistent within a group, you can
-#' input that value without the need to repeat it every time. If your database
-#' encompasses a single experimental group, simply enter the corresponding value
-#' in the \code{SexRate} and \code{Survival} arguments. In the case of having
-#' more than one group, you can input the values of \code{SexRate} and
-#' \code{Survival} correspondingly into a vector containing as many elements as
-#' there are groups (one sex ratio and one survival rate for each group).
+#' input that value without repeating it each time. If your database encompasses
+#' a single experimental group, simply enter the corresponding value in the
+#' \code{SexRate} and \code{Survival} arguments. In the case of having more than
+#' one group, you can input the values of \code{SexRate} and \code{Survival}
+#' correspondingly into a vector containing as many elements as there are groups
+#' (one sex ratio and one survival rate for each group).
+#'
+#' A similar situation applies to \code{InitiationOfAdultStage}: you can enter either
+#' a single value or a vector of values corresponding to the involved groups.
+#'
 #'
 #' \bold{Estimated Parameters:}
 #'   \describe{
-#'     \item{\emph{Net Reproductive Rate (Ro)}}{ Mean net contribution per female to the
-#'       next generation.}
-#'     \item{\emph{Intrinsic Rate of Increase (Rm)}}{ Rate of natural increase in a closed
-#'       population that has been subject to a constant age-specific schedule of
-#'       fertility and mortality for a long period, and has converged to be a
-#'       stable population.}
-#'     \item{\emph{Mean Generation Time (GT)}}{ Mean time span between the birth of
-#'       individuals of a generation and that of the next generation.}
-#'     \item{\emph{Doubling Time (DT)}}{ Time span necessary for doubling the initial
-#'       population.}
-#'     \item{\emph{Finite Rate of Increase (Lambda)}}{ It is a multiplication factor of
-#'           the original population at each time period.}
+#'     \item{\emph{Net Reproductive Rate (Ro)}}{ Mean net contribution per female
+#'          to the next generation.}
+#'     \item{\emph{Intrinsic Rate of Increase (Rm)}}{ Rate of natural increase
+#'          in a closed population that has been subject to a constant
+#'          age-specific schedule of fertility and mortality for a long period,
+#'          and has converged to be a stable population.}
+#'     \item{\emph{Mean Generation Time (GT)}}{ Mean time span between the birth
+#'          of individuals of a generation and that of the next generation.}
+#'     \item{\emph{Doubling Time (DT)}}{ Time span necessary for doubling the
+#'          initial population.}
+#'     \item{\emph{Finite Rate of Increase (Lambda)}}{ It is a multiplication
+#'          factor of the original population at each time period.}
 #'   }
 #'
 #' \bold{Rm} it was determined by analytical approximation using Lotka’s (1907, 1913) equation:
@@ -104,8 +108,8 @@
 #'
 #' \item{T.TEST  }{ An object of class \code{lifertableTest} containing the
 #'     Student t-test for pairwise group comparison. This component only appears
-#'     if the experiment in question contains more than one group and a
-#'     Jackknife estimation has been performed.}
+#'     if the experiment in question contains more than one group and an
+#'     estimate of the Confidence Interval has been performed.}
 #'
 #' \item{PSEUDOS  }{ A list containing the pseudo values generated from the
 #'     Jackknife estimation}
@@ -116,22 +120,40 @@
 #' @examples
 #' ## The Insects database will be utilized:
 #'
-#' lifertable(Female, Age, Eggs, Sexrate, Survival, Group, data = Insects,
-#'            jackknife = TRUE, TotalEggs = TRUE)
+#' lifertable(ColumnFemale = Female,
+#'            ColumnAge = Age,
+#'            ColumnEggs = Eggs,
+#'            SexRate = Sexrate,
+#'            Survival = Survival,
+#'            ColumnGroups = Group,
+#'            data = Insects,
+#'            CI = TRUE,
+#'            TotalEggs = TRUE)
 #'
 #' ## The following expressions will yield the same result as above:
 #'
-#' ## lifertable(Insects$Female, Insects$Age, Insects$Eggs, Insects$Sexrate,
-#' ##            Insects$Survival, Insects$Group, jackknife = TRUE,
-#' ##            TotalEggs = TRUE)
+#' ## lifertable(ColumnFemale = Insects$Female,
+#' ##            ColumnAge = Insects$Age,
+#' ##            ColumnEggs = Insects$Eggs,
+#' ##            SexRate = Insects$Sexrate,
+#' ##            Survival = Insects$Survival,
+#' ##            ColumnGroups = Insects$Group,
+#' ##            CI = TRUE, TotalEggs = TRUE)
 #'
-#' ## lifertable(Insects$Female, Insects$Age, Insects$Eggs,
-#' ##            SexRate = 0.7, Survival = 0.9, Insects$Group,
-#' ##            jackknife = TRUE, TotalEggs = TRUE)
+#' ## lifertable(ColumnFemale = Insects$Female,
+#' ##            ColumnAge = Insects$Age,
+#' ##            ColumnEggs = Insects$Eggs,
+#' ##            SexRate = 0.7, Survival = 0.9,
+#' ##            ColumnGroups = Insects$Group,
+#' ##            CI = TRUE, TotalEggs = TRUE)
 #'
-#' ## lifertable(Insects$Female, Insects$Age, Insects$Eggs,
-#' ##            SexRate = c(0.7, 0.7), Survival = c(0.9, 0.9),
-#' ##            Insects$Group, jackknife = TRUE, TotalEggs = TRUE)
+#' ## lifertable(ColumnFemale = Insects$Female,
+#' ##            ColumnAge = Insects$Age,
+#' ##            ColumnEggs = Insects$Eggs,
+#' ##            SexRate = c(0.7, 0.7),
+#' ##            Survival = c(0.9, 0.9),
+#' ##            ColumnGroups = Insects$Group,
+#' ##            CI = TRUE, TotalEggs = TRUE)
 #'
 #'
 lifertable <- function(ColumnFemale,
@@ -142,7 +164,7 @@ lifertable <- function(ColumnFemale,
                        ColumnGroups,
                        data,
                        InitiationOfAdultStage = 0,
-                       jackknife = FALSE,
+                       CI = FALSE,
                        TotalEggs = FALSE) {
 
   if (missing(data)) {
@@ -160,25 +182,45 @@ lifertable <- function(ColumnFemale,
   surv <- tryCatch({ eval(substitute(Survival), data) },
                    error = function(e) { Survival } )
 
-  Age <- Age + InitiationOfAdultStage
+  Init <- tryCatch({ eval(substitute(InitiationOfAdultStage), data) },
+                   error = function(e) { InitiationOfAdultStage } )
 
+  #Age <- Age + InitiationOfAdultStage
 
   if (!missing(ColumnGroups)) {
+
     Group <- tryCatch({ eval(substitute(ColumnGroups), data) },
                       error = function(e) { ColumnGroups } )
 
-    lifertable.groups(ColGroups = Group, ColumnFemale = Female,
-                      ColumnAge = Age, ColumnEggs = Eggs,
-                      ColSexRate = sr, ColSurvival = surv,
-                      jackknife = jackknife, TotalEggs = TotalEggs)
+    lifertable.groups(ColGroups = Group,
+                      ColumnFemale = Female,
+                      ColumnAge = Age,
+                      ColumnEggs = Eggs,
+                      ColSexRate = sr,
+                      ColSurvival = surv,
+                      CI = CI,
+                      TotalEggs = TotalEggs,
+                      InitAge = Init)
 
   } else {
+    Fems <- Female[!duplicated(Female)]
+
+    if (length(Init) == length(Age) || length(Init) == 1) {
+      Age <- Age + Init
+    } else if (length(Init) == length(Fems)) {
+      FemInit <- data.frame(Female = Fems, Init)
+      Init2 <- merge(data.frame(Female, Age), FemInit, by = "Female")$Init
+      Age <- Age + Init2
+    } else {
+      stop("`InitiationOfAdultStage` has incorrect length")
+    }
 
     SR <- if (length(sr) == length(Age)) {
       stats::aggregate(cbind(SR = sr),
                 by = list(AGE = Age),
                 FUN = mean, na.rm = TRUE)$SR
     } else { sr }
+
     Surv <- if (length(surv) == length(Age)) {
       stats::aggregate(cbind(Surv = surv),
                 by = list(AGE = Age),
@@ -189,10 +231,13 @@ lifertable <- function(ColumnFemale,
     compJK <- stats::aggregate(Female ~ Age, FUN = length, na.action = stats::na.pass)
 
     if (length(compJK$Female) != length(Female)){
-      if (jackknife) {
-        lifertable.jackknife(Female = Female, Age = Age,
-                             Eggs = Eggs, SexRate = SR,
-                             Survival = Surv, TotalEggs = TotalEggs)
+      if (CI) {
+        lifertable.jackknife(Female = Female,
+                             Age = Age,
+                             Eggs = Eggs,
+                             SexRate = SR,
+                             Survival = Surv,
+                             TotalEggs = TotalEggs)
       } else {
 
         # # LIFERTABLE JK -------------------------------------------------------
@@ -210,9 +255,10 @@ lifertable <- function(ColumnFemale,
                                             ColumnEggs = LIFERTABLE$NEGG,
                                             SexRate = SR,
                                             Survival = Surv)
+
         if (TotalEggs) {
           Lifertable$TOTAL.EGGS <- stats::aggregate(cbind("Total Eggs" = Eggs) ~ Female,
-                                                    FUN = sum)
+                                                    FUN = sum, na.rm = TRUE)
           class(Lifertable$TOTAL.EGGS) <- "lifertableTotEggs"
         }
 
@@ -221,8 +267,10 @@ lifertable <- function(ColumnFemale,
 
     } else {
 
-      lifertable.individual(ColumnAge = Age, ColumnFemale = Female,
-                            ColumnEggs = Eggs, SexRate = SR,
+      lifertable.individual(ColumnAge = Age,
+                            ColumnFemale = Female,
+                            ColumnEggs = Eggs,
+                            SexRate = SR,
                             Survival = Surv)
 
     }

@@ -6,10 +6,11 @@
 #'
 #' @param object \code{object} accepts 2 classes of objects:
 #'   \itemize{
-#'     \item{An object inheriting from \code{\link[=lifertable]{lifertable()}}, representing the
-#'         Life and Fertility Table.}
-#'     \item{An object of class \code{lifertableTotEggs} inherited from \code{\link[=lifertable]{lifertable()}}.
-#'         This is the object that displays the total number of eggs laid per female.}
+#'     \item{An object inheriting from \code{\link[=lifertable]{lifertable()}},
+#'         representing the Life and Fertility Table.}
+#'     \item{An object of class \code{lifertableTotEggs} inherited from
+#'         \code{\link[=lifertable]{lifertable()}}. This is the object that
+#'         displays the total number of eggs laid per female.}
 #'   }
 #'
 #' @importFrom ggplot2 aes geom_point geom_boxplot labs theme element_text ggsave
@@ -20,8 +21,13 @@
 #'
 #' @examples
 #' ## The main object will be created using the Insects database:
-#' lft <- lifertable(Female, Age, Eggs, Sexrate, ColumnGroups = Group,
-#'                   data = Insects, TotalEggs = TRUE)
+#' lft <- lifertable(ColumnFemale = Female,
+#'                   ColumnAge = Age,
+#'                   ColumnEggs = Eggs,
+#'                   SexRate = Sexrate,
+#'                   ColumnGroups = Group,
+#'                   data = Insects,
+#'                   TotalEggs = TRUE)
 #'
 #' ## Possible usage scenarios
 #'

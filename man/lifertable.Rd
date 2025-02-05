@@ -22,7 +22,7 @@ lifertable(
   ColumnGroups,
   data,
   InitiationOfAdultStage = 0,
-  jackknife = FALSE,
+  CI = FALSE,
   TotalEggs = FALSE
 )
 
@@ -47,8 +47,8 @@ lifertable(
 
 \item{SexRate}{Sex rate of eggs laid by the female at a certain age.}
 
-\item{Survival}{Percent of offspring females alive until adulthood.
-By default, the value is set to 1, assuming that all offspring will survive to adulthood.}
+\item{Survival}{Percent of offspring females alive until adulthood. By default,
+the value is set to 1, assuming that all offspring will survive to adulthood.}
 
 \item{ColumnGroups}{Optional data vector containing information on the Groups.
 It is optional if the database only contains information about one group.}
@@ -58,13 +58,13 @@ It is optional if the database only contains information about one group.}
 
 \item{InitiationOfAdultStage}{Age at which females became adults.
 If the database contains records from birth, entering this value is
-unnecessary. ONLY ENTER THIS VALUE if the database begins from the adult
-stage, and the values in \code{ColumnAge} do not reflect the preceding
-stage (i.e. they contain the ages: 1, 2, 3, ...).}
+unnecessary. \bold{ONLY ENTER THIS VALUE} if the database begins from the
+adult stage, and the values in \code{ColumnAge} do not reflect the
+preceding stage (i.e. they contain the ages: 1, 2, 3, ...).}
 
-\item{jackknife}{Logical. If \code{TRUE}, Jackknife estimations will be
-conducted to obtain Confidence Intervals for the Parameters and, if
-necessary, to compare between groups. Default is FALSE}
+\item{CI}{Logical. If \code{TRUE}, Jackknife estimations will be conducted to
+obtain Confidence Intervals for the Parameters and, if necessary, to compare
+between groups. Default is FALSE}
 
 \item{TotalEggs}{Logical. If  \code{TRUE}, the calculation of the number of
 eggs laid by each female during the entire experiment will be conducted.
@@ -94,15 +94,15 @@ containing the Confidence Intervals for the Parameter Estimates.}
 
 \item{T.TEST  }{ An object of class \code{lifertableTest} containing the
 Student t-test for pairwise group comparison. This component only appears
-if the experiment in question contains more than one group and a
-Jackknife estimation has been performed.}
+if the experiment in question contains more than one group and an
+estimate of the Confidence Interval has been performed.}
 
 \item{PSEUDOS  }{ A list containing the pseudo values generated from the
 Jackknife estimation}
 \item{GROUPS  }{ A list of the groups involved in the experiment.}
 }
 \description{
-This function enables users to obtain life and fertility tables, offering
+This function enables users to obtain Life and Fertility Tables, offering
 various configuration options for optimal usage. See "Details" section.
 }
 \details{
@@ -113,27 +113,30 @@ labels corresponding to the female and to their respective group assignments.
 The standard approach for storing the Sex Rate and Survival rate during the
 experiment is to input this information into the corresponding columns for
 each variable. If this information remains consistent within a group, you can
-input that value without the need to repeat it every time. If your database
-encompasses a single experimental group, simply enter the corresponding value
-in the \code{SexRate} and \code{Survival} arguments. In the case of having
-more than one group, you can input the values of \code{SexRate} and
-\code{Survival} correspondingly into a vector containing as many elements as
-there are groups (one sex ratio and one survival rate for each group).
+input that value without repeating it each time. If your database encompasses
+a single experimental group, simply enter the corresponding value in the
+\code{SexRate} and \code{Survival} arguments. In the case of having more than
+one group, you can input the values of \code{SexRate} and \code{Survival}
+correspondingly into a vector containing as many elements as there are groups
+(one sex ratio and one survival rate for each group).
+
+A similar situation applies to \code{InitiationOfAdultStage}: you can enter either
+a single value or a vector of values corresponding to the involved groups.
 
 \bold{Estimated Parameters:}
 \describe{
-\item{\emph{Net Reproductive Rate (Ro)}}{ Mean net contribution per female to the
-next generation.}
-\item{\emph{Intrinsic Rate of Increase (Rm)}}{ Rate of natural increase in a closed
-population that has been subject to a constant age-specific schedule of
-fertility and mortality for a long period, and has converged to be a
-stable population.}
-\item{\emph{Mean Generation Time (GT)}}{ Mean time span between the birth of
-individuals of a generation and that of the next generation.}
-\item{\emph{Doubling Time (DT)}}{ Time span necessary for doubling the initial
-population.}
-\item{\emph{Finite Rate of Increase (Lambda)}}{ It is a multiplication factor of
-the original population at each time period.}
+\item{\emph{Net Reproductive Rate (Ro)}}{ Mean net contribution per female
+to the next generation.}
+\item{\emph{Intrinsic Rate of Increase (Rm)}}{ Rate of natural increase
+in a closed population that has been subject to a constant
+age-specific schedule of fertility and mortality for a long period,
+and has converged to be a stable population.}
+\item{\emph{Mean Generation Time (GT)}}{ Mean time span between the birth
+of individuals of a generation and that of the next generation.}
+\item{\emph{Doubling Time (DT)}}{ Time span necessary for doubling the
+initial population.}
+\item{\emph{Finite Rate of Increase (Lambda)}}{ It is a multiplication
+factor of the original population at each time period.}
 }
 
 \bold{Rm} it was determined by analytical approximation using Lotka’s (1907, 1913) equation:
@@ -161,22 +164,40 @@ the original population at each time period.}
 \examples{
 ## The Insects database will be utilized:
 
-lifertable(Female, Age, Eggs, Sexrate, Survival, Group, data = Insects,
-           jackknife = TRUE, TotalEggs = TRUE)
+lifertable(ColumnFemale = Female,
+           ColumnAge = Age,
+           ColumnEggs = Eggs,
+           SexRate = Sexrate,
+           Survival = Survival,
+           ColumnGroups = Group,
+           data = Insects,
+           CI = TRUE,
+           TotalEggs = TRUE)
 
 ## The following expressions will yield the same result as above:
 
-## lifertable(Insects$Female, Insects$Age, Insects$Eggs, Insects$Sexrate,
-##            Insects$Survival, Insects$Group, jackknife = TRUE,
-##            TotalEggs = TRUE)
+## lifertable(ColumnFemale = Insects$Female,
+##            ColumnAge = Insects$Age,
+##            ColumnEggs = Insects$Eggs,
+##            SexRate = Insects$Sexrate,
+##            Survival = Insects$Survival,
+##            ColumnGroups = Insects$Group,
+##            CI = TRUE, TotalEggs = TRUE)
 
-## lifertable(Insects$Female, Insects$Age, Insects$Eggs,
-##            SexRate = 0.7, Survival = 0.9, Insects$Group,
-##            jackknife = TRUE, TotalEggs = TRUE)
+## lifertable(ColumnFemale = Insects$Female,
+##            ColumnAge = Insects$Age,
+##            ColumnEggs = Insects$Eggs,
+##            SexRate = 0.7, Survival = 0.9,
+##            ColumnGroups = Insects$Group,
+##            CI = TRUE, TotalEggs = TRUE)
 
-## lifertable(Insects$Female, Insects$Age, Insects$Eggs,
-##            SexRate = c(0.7, 0.7), Survival = c(0.9, 0.9),
-##            Insects$Group, jackknife = TRUE, TotalEggs = TRUE)
+## lifertable(ColumnFemale = Insects$Female,
+##            ColumnAge = Insects$Age,
+##            ColumnEggs = Insects$Eggs,
+##            SexRate = c(0.7, 0.7),
+##            Survival = c(0.9, 0.9),
+##            ColumnGroups = Insects$Group,
+##            CI = TRUE, TotalEggs = TRUE)
 
 
 }

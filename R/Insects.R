@@ -1,16 +1,23 @@
 #' Insects data
 #'
-#' This dataset provides reference information on two groups of insects to illustrate the usage of functions within this package.
+#' This dataset provides reference information on two groups of insects to
+#' illustrate the usage of functions within this package.
 #'
 #' @format
 #' A data frame with 404 rows and 6 columns:
 #' \describe{
-#'   \item{Group}{ Name of the group (Claudia, paty). }
-#'   \item{Female}{ The number of the female to which each row belongs.}
-#'   \item{Age}{ It is the age corresponding to the female. Stage in which it is found.}
-#'   \item{Eggs}{ Eggs laid by each female at each age.}
-#'   \item{Sexrate}{ Sexrate at each age.}
-#'   \item{Survival}{ Survival at each age.}
+#'   \item{Group}{ Name of the group ("Group1", "Group2").
+#'                 It is a variable of class "character". }
+#'   \item{Female}{ The number of the female to which each row belongs.
+#'                  It is a variable of class "integer". }
+#'   \item{Age}{ It is the age corresponding to the female. Stage in which it is found.
+#'               It is a variable of class "integer". }
+#'   \item{Eggs}{ Eggs laid by each female at each age.
+#'                It is a variable of class "integer". }
+#'   \item{Sexrate}{ Sexrate at each age. It is a variable of class "numeric". }
+#'   \item{Survival}{ Survival at each age. It is a variable of class "numeric". }
 #' }
-#' @source This dataset serves as an example for running the provided code snippets or as a reference for analyzing the functionality of this package.
+#' @source This dataset serves as an example for running the provided code
+#' snippets or as a reference for analyzing the functionality of this package.
+
 "Insects"

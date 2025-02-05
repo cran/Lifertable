@@ -20,7 +20,11 @@
 #'
 #' @examples
 #' ## The main object will be created using the Insects database:
-#' lft <- lifertable(Female, Age, Eggs, Sexrate, ColumnGroups = Group,
+#' lft <- lifertable(ColumnFemale = Female,
+#'                   ColumnAge = Age,
+#'                   ColumnEggs = Eggs,
+#'                   SexRate = Sexrate,
+#'                   ColumnGroups = Group,
 #'                   data = Insects)
 #'
 #' ## Possible usage scenarios
@@ -39,7 +43,7 @@
 #'
 plotSurvivalCurve <- function (object) {
   AGE <- NULL #It is not used, its to avoid NOTE
-  LX <- NULL #It is not used, its to avoid NOTE
+  Lx <- NULL #It is not used, its to avoid NOTE
   GROUPS <- NULL #It is not used, its to avoid NOTE
 
   if ( methods::is(object, "lifertable") || methods::is(object, "lifertableLFT") ) {
@@ -51,14 +55,14 @@ plotSurvivalCurve <- function (object) {
     }
 
     if (is.null(LFT$GROUPS)) {
-      ggplot2::ggplot(LFT, mapping = aes(AGE, LX)) +
+      ggplot2::ggplot(LFT, mapping = aes(AGE, Lx)) +
         geom_point(mapping = aes(color = AGE), show.legend = FALSE) +
         geom_line() +
         labs(title = "SURVIVORSHIP CURVE", x = "Age",
              y = "Standardized survivorship (lx)") +
         theme(plot.title = element_text(hjust = 0.5))
     } else {
-      ggplot2::ggplot(LFT, mapping = aes(AGE, LX )) +
+      ggplot2::ggplot(LFT, mapping = aes(AGE, Lx )) +
         geom_point(mapping = aes(color = GROUPS), show.legend = FALSE) +
         geom_line(mapping = aes(color = GROUPS), show.legend = FALSE) +
         facet_wrap( ~ GROUPS, scales = "free", ) +

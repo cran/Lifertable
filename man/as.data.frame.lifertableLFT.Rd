@@ -22,8 +22,12 @@ Function to coerce the object displaying Life Table into a data frame.
 }
 \examples{
 ## Make the main object:
-lft <- lifertable(Female, Age, Eggs, Sexrate,
-                  ColumnGroups = Group, data = Insects)
+lft <- lifertable(ColumnFemale = Female,
+                  ColumnAge = Age,
+                  ColumnEggs = Eggs,
+                  SexRate = Sexrate,
+                  ColumnGroups = Group,
+                  data = Insects)
 
 
 as.data.frame(lft$LIFERTABLE)

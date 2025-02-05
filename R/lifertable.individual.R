@@ -17,6 +17,7 @@ lifertable.individual <- function(ColumnAge,
                                   ColumnEggs,
                                   SexRate,
                                   Survival) {
+
   n <- max(ColumnFemale, na.rm = TRUE)
   # # LIFERTABLE ------------------------------------------------------------
   LIFERTABLE <- data.frame(AGE = ColumnAge,
@@ -30,24 +31,37 @@ lifertable.individual <- function(ColumnAge,
     stop("`SexRate` has incorrect length")
   }
 
-  LIFERTABLE$LX <- Survival * (LIFERTABLE$FEMALES / n)
+  LIFERTABLE$Lx <- Survival * (LIFERTABLE$FEMALES / n)
+  LIFERTABLE$Mx <- (LIFERTABLE$NEGG / LIFERTABLE$FEMALES) * SexRate
+  LIFERTABLE$LxMx <- LIFERTABLE$Lx * LIFERTABLE$Mx
+  LIFERTABLE$xLxMx <- LIFERTABLE$AGE * LIFERTABLE$LxMx
 
-  LIFERTABLE$MX <- (LIFERTABLE$NEGG / LIFERTABLE$FEMALES) * SexRate
-  LIFERTABLE$LXMX <- LIFERTABLE$LX * LIFERTABLE$MX
-  LIFERTABLE$XLXMX <- LIFERTABLE$AGE * LIFERTABLE$LXMX
+  # NUEVOS CÁLCULOS - -
+  Lx1 <- c(LIFERTABLE$Lx[-1], 0)
+  LIFERTABLE$gx <- Lx1 / LIFERTABLE$Lx
+
+  Lxprom <- (Lx1 + LIFERTABLE$Lx) / 2
+  Tx <- rev(cumsum(rev(Lxprom)))
+  LIFERTABLE$ex <- Tx / LIFERTABLE$Lx
+
+
+
   LIFERTABLE[is.na(LIFERTABLE)] <- 0
 
   # # PARAMETERS ------------------------------------------------------------
-  RO <- sum(LIFERTABLE$LXMX, na.rm = TRUE)
-  TG <- (sum(LIFERTABLE$XLXMX, na.rm = TRUE)) / RO
+  RO <- sum(LIFERTABLE$LxMx, na.rm = TRUE)
+  TG <- (sum(LIFERTABLE$xLxMx, na.rm = TRUE)) / RO
   RM <- (log(RO)) / TG
 
-  ITER <- merge(cbind(LIFERTABLE[c("AGE", "LXMX")], RM),
+  ITER <- merge(cbind(LIFERTABLE[c("AGE", "LxMx")], RM),
                 seq(0.8,1.2,0.005))
   ITER$R <- RM * ITER$y
-  ITER$iter <- ITER$LXMX * exp( (-ITER$R) * ITER$AGE )
+  ITER$iter <- ITER$LxMx * exp( (-ITER$R) * ITER$AGE )
 
-  APROXs <- stats::aggregate(cbind(Sum = iter) ~ R, data = ITER, FUN = sum, na.rm = TRUE  )
+  APROXs <- stats::aggregate(cbind(Sum = iter) ~ R,
+                             data = ITER,
+                             FUN = sum,
+                             na.rm = TRUE  )
   APROXs$aprox <- abs(1 - APROXs$Sum)
 
 
