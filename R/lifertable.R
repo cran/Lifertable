@@ -21,15 +21,22 @@
 #' @param data An optional data frame containing the variables. If not found in
 #'     \code{data}, the variables are taken from environment.
 #'
-#' @param InitiationOfAdultStage Age at which females became adults.
+#' @param adultStage Age at which females became adults.
 #'     If the database contains records from birth, entering this value is
 #'     unnecessary. \bold{ONLY ENTER THIS VALUE} if the database begins from the
 #'     adult stage, and the values in \code{ColumnAge} do not reflect the
 #'     preceding stage (i.e. they contain the ages: 1, 2, 3, ...).
 #'
-#' @param CI Logical. If \code{TRUE}, Jackknife estimations will be conducted to
+#' @param CI Logical. If \code{TRUE}, estimations will be conducted to
 #'     obtain Confidence Intervals for the Parameters and, if necessary, to compare
-#'     between groups. Default is FALSE
+#'     between groups. Default is FALSE.
+#'
+#' @param technique A string that defines the technique to be used to calculate the
+#'     confidence interval. Can be "\code{jackknife}" or "\code{bootstrap}".
+#'     Default is "jackknife".
+#'
+#' @param reSamples Number of re-samples to calculate Bootstrap estimates.
+#'     Only used when \code{technique = "bootstrap"}. Default is 1000.
 #'
 #' @param TotalEggs Logical. If  \code{TRUE}, the calculation of the number of
 #'     eggs laid by each female during the entire experiment will be conducted.
@@ -50,7 +57,7 @@
 #' correspondingly into a vector containing as many elements as there are groups
 #' (one sex ratio and one survival rate for each group).
 #'
-#' A similar situation applies to \code{InitiationOfAdultStage}: you can enter either
+#' A similar situation applies to \code{adultStage}: you can enter either
 #' a single value or a vector of values corresponding to the involved groups.
 #'
 #'
@@ -103,8 +110,9 @@
 #' \item{TOTAL.EGGS  }{ If requested, an object of class \code{lifertableTotEggs}
 #'     containing the total number of eggs laid by each female throughout the
 #'     entire experiment.}
-#' \item{CI  }{ If requested, an object of class \code{lifertableCI}
-#'     containing the Confidence Intervals for the Parameter Estimates.}
+#' \item{CI  }{ If requested, an object of class \code{lifertableCIJackknife} or
+#'     \code{lifertableCIBootstrap} containing the Confidence Intervals for the
+#'     Parameter Estimates.}
 #'
 #' \item{T.TEST  }{ An object of class \code{lifertableTest} containing the
 #'     Student t-test for pairwise group comparison. This component only appears
@@ -112,7 +120,7 @@
 #'     estimate of the Confidence Interval has been performed.}
 #'
 #' \item{PSEUDOS  }{ A list containing the pseudo values generated from the
-#'     Jackknife estimation}
+#'     Jackknife or Bootstrap estimation.}
 #' \item{GROUPS  }{ A list of the groups involved in the experiment.}
 #'
 #' @export
@@ -128,6 +136,7 @@
 #'            ColumnGroups = Group,
 #'            data = Insects,
 #'            CI = TRUE,
+#'            technique = "jackknife",
 #'            TotalEggs = TRUE)
 #'
 #' ## The following expressions will yield the same result as above:
@@ -138,14 +147,16 @@
 #' ##            SexRate = Insects$Sexrate,
 #' ##            Survival = Insects$Survival,
 #' ##            ColumnGroups = Insects$Group,
-#' ##            CI = TRUE, TotalEggs = TRUE)
+#' ##            CI = TRUE, technique = "jackknife",
+#' ##            TotalEggs = TRUE)
 #'
 #' ## lifertable(ColumnFemale = Insects$Female,
 #' ##            ColumnAge = Insects$Age,
 #' ##            ColumnEggs = Insects$Eggs,
 #' ##            SexRate = 0.7, Survival = 0.9,
 #' ##            ColumnGroups = Insects$Group,
-#' ##            CI = TRUE, TotalEggs = TRUE)
+#' ##            CI = TRUE, technique = "jackknife",
+#' ##            TotalEggs = TRUE)
 #'
 #' ## lifertable(ColumnFemale = Insects$Female,
 #' ##            ColumnAge = Insects$Age,
@@ -153,7 +164,8 @@
 #' ##            SexRate = c(0.7, 0.7),
 #' ##            Survival = c(0.9, 0.9),
 #' ##            ColumnGroups = Insects$Group,
-#' ##            CI = TRUE, TotalEggs = TRUE)
+#' ##            CI = TRUE, technique = "jackknife",
+#' ##            TotalEggs = TRUE)
 #'
 #'
 lifertable <- function(ColumnFemale,
@@ -163,8 +175,10 @@ lifertable <- function(ColumnFemale,
                        Survival = 1,
                        ColumnGroups,
                        data,
-                       InitiationOfAdultStage = 0,
+                       adultStage = 0,
                        CI = FALSE,
+                       technique = "jackknife",
+                       reSamples = 1000,
                        TotalEggs = FALSE) {
 
   if (missing(data)) {
@@ -182,10 +196,9 @@ lifertable <- function(ColumnFemale,
   surv <- tryCatch({ eval(substitute(Survival), data) },
                    error = function(e) { Survival } )
 
-  Init <- tryCatch({ eval(substitute(InitiationOfAdultStage), data) },
-                   error = function(e) { InitiationOfAdultStage } )
+  Init <- tryCatch({ eval(substitute(adultStage), data) },
+                   error = function(e) { adultStage } )
 
-  #Age <- Age + InitiationOfAdultStage
 
   if (!missing(ColumnGroups)) {
 
@@ -199,6 +212,8 @@ lifertable <- function(ColumnFemale,
                       ColSexRate = sr,
                       ColSurvival = surv,
                       CI = CI,
+                      technique = technique,
+                      reSamples = reSamples,
                       TotalEggs = TotalEggs,
                       InitAge = Init)
 
@@ -212,7 +227,7 @@ lifertable <- function(ColumnFemale,
       Init2 <- merge(data.frame(Female, Age), FemInit, by = "Female")$Init
       Age <- Age + Init2
     } else {
-      stop("`InitiationOfAdultStage` has incorrect length")
+      stop("`adultStage` has incorrect length")
     }
 
     SR <- if (length(sr) == length(Age)) {
@@ -230,17 +245,34 @@ lifertable <- function(ColumnFemale,
     # # Jackknife ---------------------------------------------------------------
     compJK <- stats::aggregate(Female ~ Age, FUN = length, na.action = stats::na.pass)
 
-    if (length(compJK$Female) != length(Female)){
+    if (length(compJK$Female) != length(Female)) {
       if (CI) {
-        lifertable.jackknife(Female = Female,
-                             Age = Age,
-                             Eggs = Eggs,
-                             SexRate = SR,
-                             Survival = Surv,
-                             TotalEggs = TotalEggs)
+
+        if (technique =="jackknife") {
+
+          lifertable.jackknife(Female = Female,
+                               Age = Age,
+                               Eggs = Eggs,
+                               SexRate = SR,
+                               Survival = Surv,
+                               TotalEggs = TotalEggs)
+
+        } else if (technique == "bootstrap") {
+          lifertable.bootstrap(Female = Female,
+                               Age = Age,
+                               Eggs = Eggs,
+                               SexRate = SR,
+                               Survival = Surv,
+                               reSamples = reSamples,
+                               TotalEggs = TotalEggs)
+
+        } else {
+          stop("Sorry, this method is not yet defined or has been written incorrectly.")
+        }
+
       } else {
 
-        # # LIFERTABLE JK -------------------------------------------------------
+        # # LIFERTABLE  -------------------------------------------------------
         FEMALES <- stats::aggregate(cbind(FEMALES = Female),
                              by = list(AGE = Age),
                              FUN = length)

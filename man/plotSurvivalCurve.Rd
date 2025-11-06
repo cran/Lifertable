@@ -4,7 +4,7 @@
 \alias{plotSurvivalCurve}
 \title{Survival curve for the Life and Fertility Table}
 \usage{
-plotSurvivalCurve(object)
+plotSurvivalCurve(object, time = "days")
 }
 \arguments{
 \item{object}{\code{object} accepts 2 classes of objects:
@@ -14,6 +14,9 @@ Life and Fertility Table.}
 \item{An object of class \code{lifertableLFT} inherited from \code{\link[=lifertable]{lifertable()}}.
 This is the object that displays the Life and Fertility Table.}
 }}
+
+\item{time}{A string that defines the time period over which “Age” is measured
+("days", "months", "years", etc). Default is "days".}
 }
 \value{
 Returns an object of \code{\link[base:class]{class}} c("gg", "ggplot").

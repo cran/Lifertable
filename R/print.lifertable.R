@@ -8,14 +8,14 @@
 #' @export
 #'
 print.lifertable <- function(x, ...) {
-  print(x$LIFERTABLE)
-  print(x$PARAMETERS)
+  print(x$LIFERTABLE, ...)
+  print(x$PARAMETERS, ...)
   if (!is.null(x$TOTAL.EGGS))
-    print(x$TOTAL.EGGS)
+    print(x$TOTAL.EGGS, ...)
   if(!is.null(x$CI))
-    print(x$CI)
+    print(x$CI, ...)
   if (!is.null(x$T.TEST))
-    print(x$T.TEST)
+    print(x$T.TEST, ...)
 
   cat(" --------------------\n\n")
   invisible(x)

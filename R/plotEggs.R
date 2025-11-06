@@ -57,17 +57,19 @@ plotEggs <- function (object) {
 
     if (is.null(HT$GROUPS)) {
       ggplot2::ggplot(mapping = aes(HT$Female, HT$`Total Eggs`)) +
-        geom_point(mapping = aes(color = HT$Female), show.legend = FALSE) +
+        geom_point(mapping = aes(color = HT$Female),
+                   show.legend = FALSE) +
         labs(title = "TOTAL EGGS LAID PER FEMALE",
              y = "Eggs", x = "Females") +
         theme(plot.title = element_text(hjust = 0.5))
 
     } else {
       ggplot2::ggplot(mapping = aes( HT$GROUPS , HT$`Total Eggs`)) +
-        geom_point() +
-        geom_boxplot(mapping = aes(color = HT$GROUPS), show.legend = FALSE ) +
+        geom_point(mapping = aes(color = HT$GROUPS), show.legend = FALSE) +
+        geom_boxplot(mapping = aes(color = HT$GROUPS), show.legend = FALSE,
+                     staplewidth = 0.4, whisker.linetype = 2) +
         labs(title = "TOTAL EGGS LAID PER FEMALE",
-             y = "", x = "") +
+             y = "Eggs", x = "") +
         theme(plot.title = element_text(hjust = 0.5))
     }
 

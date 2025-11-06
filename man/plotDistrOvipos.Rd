@@ -10,7 +10,8 @@ plotDistrOvipos(
   ColumnEggs,
   ColumnGroups,
   data,
-  InitiationOfAdultStage = 0
+  adultStage = 0,
+  time = "days"
 )
 }
 \arguments{
@@ -26,11 +27,14 @@ It is optional if the database only contains information about one group.}
 \item{data}{An optional data frame containing the variables. If not found in
 \code{data}, the variables are taken from environment.}
 
-\item{InitiationOfAdultStage}{Age at which females became adults.
+\item{adultStage}{Age at which females became adults.
 If the database contains records from birth, entering this value is
 unnecessary. \bold{ONLY ENTER THIS VALUE} if the database begins from the
 adult stage, and the values in \code{ColumnAge} do not reflect the
 preceding stage (i.e. they contain the ages: 1, 2, 3, ...).}
+
+\item{time}{A string that defines the time period over which “Age” is measured
+("days", "months", "years", etc). Default is "days".}
 }
 \value{
 Returns an object of \code{\link[base:class]{class}} c("gg", "ggplot").

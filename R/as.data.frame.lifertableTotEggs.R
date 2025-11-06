@@ -25,11 +25,11 @@
 as.data.frame.lifertableTotEggs <- function (x, row.names = NULL, ...) {
 
   if ("Total Eggs" %in% names(x)) {
-    as.data.frame( unclass(x) , check.names = FALSE, row.names = row.names)
+    as.data.frame( unclass(x) , check.names = FALSE, row.names = row.names, ...)
   } else {
     for (i in seq_along(x) ) {
       x[[ i ]] <- as.data.frame(unclass(x[[ i ]]),
-                           check.names = FALSE )
+                           check.names = FALSE, ... )
       x[[ i ]]$GROUPS <- names(x)[i]
     }
     x <- do.call(rbind, x)

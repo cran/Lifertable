@@ -39,10 +39,14 @@ PlotPseudoVals <- function (object) {
   } else {
     if ("Ro" %in% names(object$PSEUDOS)) {
 
-      psvs <- tidyr::gather(as.data.frame(object$PSEUDOS), "Parameter", "Value", factor_key = TRUE)
+      psvs <- tidyr::gather(as.data.frame(object$PSEUDOS),
+                            "Parameter", "Value", factor_key = TRUE)
 
       ggplot2::ggplot(psvs, mapping = aes(Parameter, Value) ) +
-        geom_point(mapping = aes(color = Parameter), show.legend = FALSE) +
+        geom_boxplot(mapping = aes(color = Parameter),
+                     show.legend = FALSE, staplewidth = 0.4, whisker.linetype = 2)+
+        geom_point(mapping = aes(color = Parameter),
+                   show.legend = FALSE) +
         facet_wrap(~ Parameter, scales = "free", ncol = 2) +
         labs(title = "PSEUDOVALUES OF PARAMETERS",
              x = "", y = "" ) +
@@ -60,7 +64,8 @@ PlotPseudoVals <- function (object) {
                             factor_key = TRUE)
 
       ggplot2::ggplot(psvs, mapping = aes(Group, Value) ) +
-        geom_boxplot(mapping = aes(color = Group), show.legend = FALSE ) +
+        geom_boxplot(mapping = aes(color = Group),
+                     show.legend = FALSE, staplewidth = 0.4) +
         facet_wrap(~ Parameter, scales = "free", ncol = 2) +
         labs(title = "PSEUDOVALUES OF PARAMETERS",
              x = "", y = "" ) +

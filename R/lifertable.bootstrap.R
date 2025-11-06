@@ -1,5 +1,5 @@
 
-#' Obtain Jackknife Estimates
+#' Obtain Boostrap Estimates
 #'
 #' This function is intended for internal use and supports the primary functionality of the \link{lifertable} function.
 #'
@@ -8,6 +8,8 @@
 #' @param Eggs Data vector containing information on the Number of Eggs Laid.
 #' @param SexRate Sex rate of eggs laid by the female at a certain age.
 #' @param Survival Percent of offspring females alive until adulthood.
+#' @param reSamples Number of sub-samples for calculate the Bootstrap estimates.
+#'
 #' @param ... Further arguments, passed to other methods.
 #'
 #' @return Return an object of class \link{lifertable}. Add the \code{CI} and
@@ -15,33 +17,34 @@
 #'
 #' @noRd
 #'
-lifertable.jackknife <- function(Female,
+lifertable.bootstrap <- function(Female,
                                  Age,
                                  Eggs,
                                  SexRate,
                                  Survival,
+                                 reSamples,
                                  ...) {
 
   Ages <- Age[!duplicated(Age)]
 
-  JK <- data.frame(Female = Female,
+  BS <- data.frame(Female = Female,
                    Age = Age,
                    Eggs = Eggs)
 
   if (length(SexRate) == length(Age) || length(SexRate) == 1) {
-    JK$SexRate <- SexRate
+    BS$SexRate <- SexRate
   } else if (length(SexRate) == length(Ages)) {
     sr <- data.frame(Age = Ages, SexRate)
-    JK <- merge(JK, sr, by = "Age")
+    BS <- merge(BS, sr, by = "Age")
   } else {
     stop("`SexRate` has incorrect length")
   }
 
   if (length(Survival) == length(Age) || length(Survival) == 1) {
-    JK$Survival <- Survival
+    BS$Survival <- Survival
   } else if (length(Survival) == length(Ages)) {
     surv <- data.frame(Age = Ages, Survival)
-    JK <- merge(JK, surv, by = "Age")
+    BS <- merge(BS, surv, by = "Age")
   } else {
     stop("`Survival` has incorrect length")
   }
@@ -49,15 +52,28 @@ lifertable.jackknife <- function(Female,
   Females <- Female[!duplicated(Female)]
   n <- length(Females)
 
-  ITER <- list(V0 = JK)
-  for (i in 1:n) {
-    D <- JK[-(which(JK$Female == Females[i])), ]
-    ITER[[i + 1]] <- D
-    names(ITER) <- c(names(ITER)[-length(ITER)], paste0("V", i))
+
+
+  boot <- list()
+  for (i in 1:reSamples) {
+    boot[[i]] <- sample(Females, n, replace = TRUE)
   }
 
 
-  DJK <- lapply(ITER, function(x){
+
+  ITER <- lapply(boot, function(x){
+    DT <- data.frame()
+    for (j in x) {
+      D <- BS[(which(BS$Female == j)), ]
+      DT <- rbind(DT, D)
+    }
+    return(DT)
+  })
+  names(ITER) <- c(paste0("V", c(1:reSamples)))
+
+
+
+  DBS <- lapply(ITER, function(x){
     as.data.frame(lifertable(ColumnFemale = x$Female,
                              ColumnAge = x$Age,
                              ColumnEggs = x$Eggs,
@@ -67,24 +83,18 @@ lifertable.jackknife <- function(Female,
                              TotalEggs = FALSE)$PARAMETERS)
     })
 
-  #PARAMETERS <- DJK[[1]]
-  partials <- do.call(rbind, DJK)
+  bootstrap <- do.call(rbind, DBS)
 
-  pseudos <- lapply( partials,
-                     FUN = function(x) { (n * x[1]) - ((n - 1) * x) } )
+  bootstrap <- lapply(bootstrap, FUN = function(x){ x })
 
-
-  pseudos <- lapply( pseudos, FUN = function(x){ x[-1] } )
-
-
-  Lifertable <- lifertable(ColumnFemale = JK$Female,
-                           ColumnAge = JK$Age,
-                           ColumnEggs = JK$Eggs,
-                           SexRate = JK$SexRate,
-                           Survival = JK$Survival,
+  Lifertable <- lifertable(ColumnFemale = BS$Female,
+                           ColumnAge = BS$Age,
+                           ColumnEggs = BS$Eggs,
+                           SexRate = BS$SexRate,
+                           Survival = BS$Survival,
                            CI = FALSE, ...)
 
-  Lifertable$CI <- lapply(pseudos, FUN = intconfJK )
+  Lifertable$CI <- lapply(bootstrap, FUN = intconfBS )
 
 
 
@@ -98,9 +108,9 @@ lifertable.jackknife <- function(Female,
 
 
 
-  class(Lifertable$CI) <- "lifertableCIJackknife"
+  class(Lifertable$CI) <- "lifertableCIBootstrap"
 
-  Lifertable$PSEUDOS <- pseudos
+  Lifertable$PSEUDOS <- bootstrap
 
 
   return(Lifertable)

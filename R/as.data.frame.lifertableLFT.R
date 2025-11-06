@@ -28,16 +28,17 @@ as.data.frame.lifertableLFT <- function (x, row.names = NULL, ...) {
                FEMALES = x$FEMALES,
                NEGG = x$NEGG,
                Lx = x$Lx,
+               hx = x$hx, # NUEVO 1.0.1
                Mx = x$Mx,
                LxMx = x$LxMx,
                xLxMx = x$xLxMx,
-               gx = x$gx, #Nuevo 0.0.2
-               ex = x$ex, #Nuevo 0.0.2
-               row.names = row.names)
+               gx = x$gx,
+               ex = x$ex,
+               row.names = row.names, ...)
   } else {
     for (i in seq_along(x) ) {
       x[[ i ]] <- as.data.frame(unclass(x[[ i ]]),
-                                check.names = FALSE )
+                                check.names = FALSE, ... )
       x[[ i ]]$GROUPS <- names(x)[i]
     }
     x <- do.call(rbind, x)

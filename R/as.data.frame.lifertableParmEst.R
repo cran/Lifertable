@@ -27,11 +27,11 @@ as.data.frame.lifertableParmEst <- function (x, row.names = NULL, ...) {
                Rm = x$Rm,
                GT = x$GT,
                DT = x$DT,
-               Lambda = x$Lambda, row.names = row.names)
+               Lambda = x$Lambda, row.names = row.names, ...)
   } else {
     for (i in seq_along(x) ) {
       x[[ i ]] <- data.frame(Group = names(x)[i],
-                             as.data.frame(x[[i]]))
+                             as.data.frame(x[[i]]), ...)
     }
     x <- do.call(rbind, x)
     row.names(x) <- row.names

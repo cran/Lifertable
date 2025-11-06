@@ -20,6 +20,8 @@ lifertable.groups <- function(ColGroups,
                               ColSexRate,
                               ColSurvival,
                               CI,
+                              technique,
+                              reSamples,
                               TotalEggs,
                               InitAge) {
 
@@ -41,7 +43,7 @@ lifertable.groups <- function(ColGroups,
     } else if (length(InitAge) == nrow(Data)) {
       GROUPS[[i]]$InitAge <- split(InitAge, ColGroups)[[i]]
     } else {
-      stop("`InitiationOfAdultStage` has incorrect length")
+      stop("`adultStage` has incorrect length")
     }
 
     if (length(ColSexRate) == 1) {
@@ -73,8 +75,10 @@ lifertable.groups <- function(ColGroups,
                                SexRate = x$SexRate,
                                Survival = x$Survival,
                                CI = CI,
+                               technique = technique,
+                               reSamples = reSamples,
                                TotalEggs = TotalEggs,
-                               InitiationOfAdultStage = x$InitAge)
+                               adultStage = x$InitAge)
                   })
 
 
@@ -104,11 +108,26 @@ lifertable.groups <- function(ColGroups,
       Lambda = lapply(Lifertable$CI, FUN = function(x) x$Lambda)
     )
 
-    class(Lifertable$CI$Ro) <- "lifertableCI"
-    class(Lifertable$CI$Rm) <- "lifertableCI"
-    class(Lifertable$CI$GT) <- "lifertableCI"
-    class(Lifertable$CI$DT) <- "lifertableCI"
-    class(Lifertable$CI$Lambda) <- "lifertableCI"
+    if (technique == "jackknife") {
+      class(Lifertable$CI$Ro) <- "lifertableCIJackknife"
+      class(Lifertable$CI$Rm) <- "lifertableCIJackknife"
+      class(Lifertable$CI$GT) <- "lifertableCIJackknife"
+      class(Lifertable$CI$DT) <- "lifertableCIJackknife"
+      class(Lifertable$CI$Lambda) <- "lifertableCIJackknife"
+
+      class(Lifertable$CI) <- "lifertableCIJackknife"
+
+    } else if (technique == "bootstrap"){
+      class(Lifertable$CI$Ro) <- "lifertableCIBootstrap"
+      class(Lifertable$CI$Rm) <- "lifertableCIBootstrap"
+      class(Lifertable$CI$GT) <- "lifertableCIBootstrap"
+      class(Lifertable$CI$DT) <- "lifertableCIBootstrap"
+      class(Lifertable$CI$Lambda) <- "lifertableCIBootstrap"
+
+      class(Lifertable$CI) <- "lifertableCIBootstrap"
+
+    }
+
 
     Dpares <- list() ; k = 1
     for (i in 1 : (length(TOTAL) - 1) ) {
@@ -125,7 +144,6 @@ lifertable.groups <- function(ColGroups,
       }
     }
 
-    class(Lifertable$CI) <- "lifertableCI"
 
     Lifertable$T.TEST <- lapply(Dpares, pruebast)
     class(Lifertable$T.TEST) <- "lifertableTest"

@@ -12,6 +12,9 @@
 #'         This is the object that displays the Life and Fertility Table.}
 #'   }
 #'
+#' @param time A string that defines the time period over which “Age” is measured
+#'     ("days", "months", "years", etc). Default is "days".
+#'
 #' @importFrom ggplot2 aes geom_point geom_line facet_wrap labs theme element_text ggsave
 #'
 #' @return Returns an object of [`class`][base::class] c("gg", "ggplot").
@@ -41,7 +44,9 @@
 #'
 #'
 #'
-plotSurvivalCurve <- function (object) {
+plotSurvivalCurve <- function (object,
+                               time = "days") {
+
   AGE <- NULL #It is not used, its to avoid NOTE
   Lx <- NULL #It is not used, its to avoid NOTE
   GROUPS <- NULL #It is not used, its to avoid NOTE
@@ -58,7 +63,7 @@ plotSurvivalCurve <- function (object) {
       ggplot2::ggplot(LFT, mapping = aes(AGE, Lx)) +
         geom_point(mapping = aes(color = AGE), show.legend = FALSE) +
         geom_line() +
-        labs(title = "SURVIVORSHIP CURVE", x = "Age",
+        labs(title = "SURVIVORSHIP CURVE", x = paste0("Age (", time, ")"),
              y = "Standardized survivorship (lx)") +
         theme(plot.title = element_text(hjust = 0.5))
     } else {
@@ -66,7 +71,7 @@ plotSurvivalCurve <- function (object) {
         geom_point(mapping = aes(color = GROUPS), show.legend = FALSE) +
         geom_line(mapping = aes(color = GROUPS), show.legend = FALSE) +
         facet_wrap( ~ GROUPS, scales = "free", ) +
-        labs(title = "SURVIVORSHIP CURVE", x = "Age",
+        labs(title = "SURVIVORSHIP CURVE", x = paste0("Age (", time, ")"),
              y = "Standardized survivorship (lx)") +
         theme(plot.title = element_text(hjust = 0.5))
     }
